@@ -1,0 +1,100 @@
+# ==============================================================================
+# API Gateway Configuration
+# ==============================================================================
+
+server:
+  port: ${SERVER_PORT:9000}
+
+spring:
+  http:
+    clients:
+      connect-timeout: ${GATEWAY_CONNECT_TIMEOUT:2s}
+      read-timeout: ${GATEWAY_READ_TIMEOUT:10s}
+  cloud:
+    loadbalancer:
+      health-check:
+        initial-delay: 5s
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: user-service
+              uri: lb://user-service
+              predicates:
+                - Path=/api/v1/users/**
+
+            - id: product-service
+              uri: lb://product-service
+              predicates:
+                - Path=/api/v1/products/**
+
+            - id: order-service
+              uri: lb://order-service
+              predicates:
+                - Path=/api/v1/orders/**
+
+            - id: employee-service
+              uri: lb://employee-service
+              predicates:
+                - Path=/api/v1/employees/**
+
+            - id: shipping-service
+              uri: lb://shipping-service
+              predicates:
+                - Path=/api/v1/shipments/**
+
+            - id: user-service-docs
+              uri: lb://user-service
+              predicates:
+                - Path=/docs/user-service/**
+              filters:
+                - StripPrefix=2
+
+            - id: product-service-docs
+              uri: lb://product-service
+              predicates:
+                - Path=/docs/product-service/**
+              filters:
+                - StripPrefix=2
+
+            - id: order-service-docs
+              uri: lb://order-service
+              predicates:
+                - Path=/docs/order-service/**
+              filters:
+                - StripPrefix=2
+
+            - id: employee-service-docs
+              uri: lb://employee-service
+              predicates:
+                - Path=/docs/employee-service/**
+              filters:
+                - StripPrefix=2
+
+            - id: shipping-service-docs
+              uri: lb://shipping-service
+              predicates:
+                - Path=/docs/shipping-service/**
+              filters:
+                - StripPrefix=2
+
+platform:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: user-service
+        url: /docs/user-service/v3/api-docs
+      - name: product-service
+        url: /docs/product-service/v3/api-docs
+      - name: order-service
+        url: /docs/order-service/v3/api-docs
+      - name: employee-service
+        url: /docs/employee-service/v3/api-docs
+      - name: shipping-service
+        url: /docs/shipping-service/v3/api-docs
