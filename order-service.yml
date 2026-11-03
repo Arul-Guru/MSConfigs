@@ -23,6 +23,32 @@ spring:
         jdbc:
           time_zone: UTC
 
+  # Timeouts for the guarded inter-service calls (FR-RES-03): INT-02 to the Product
+  # Service and INT-05 to the Shipping Service. A Feign client with no read timeout
+  # waits forever and the circuit breaker never sees a failure to count.
+  #
+  # Keep read-timeout below resilience4j.timelimiter timeout-duration (6s, set in the
+  # service artefact) so a slow dependency is reported as a Feign read timeout rather
+  # than as a time-limiter cancellation.
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connect-timeout: ${FEIGN_CONNECT_TIMEOUT:2000}
+            read-timeout: ${FEIGN_READ_TIMEOUT:5000}
+            logger-level: basic
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # circuitbreakers exposes breaker state for alerting (FR-RES-06, NFR-OBS-07).
+        include: health,info,metrics,prometheus,circuitbreakers
+  health:
+    circuitbreakers:
+      enabled: true
+
 springdoc:
   api-docs:
     path: /v3/api-docs
